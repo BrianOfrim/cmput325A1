@@ -31,9 +31,9 @@
                 ((eq f 'eq)  (fl-interp-help (eq (fl-interp-help (car arg) P N V) (fl-interp-help (cadr arg) P N V) ) P N V))
                 ((eq f 'cons)  (fl-interp-help (cons (fl-interp-help (car arg) P N V) (fl-interp-help (cadr arg) P N V)) P N V))
                 ; made it this far without a match, check for the presense of input function
-                ((eq f (caar P)) 
+                ((hasFuncDef P f) 
                   ; check if the function in in P 
-                  (let ( (fargs (getArgs (cdar P) nil)) (fdef (getFunction (cdar P))))
+                  (let ( (fargs (getArgs (cdr (getFuncDef P f)) nil)) (fdef (getFunction (cdr (getFuncDef P f)))))
                     ;; (if (eq f userf)
                         ; make namelist and call fl-interp with it
                         (fl-interp-help fdef P (addNames nil fargs) (addValues nil arg P N V))
@@ -51,14 +51,6 @@
 
 
 
-
-; if f is a user-defined function,
-;    then evaluate the arguments 
-;         and apply f to the evaluated arguments 
-;             (applicative order reduction) 
-
-; otherwise f is undefined; in this case,
-; E is returned as if it is quoted in lisp
 
 ; get the value associated with the name
 (defun getVal(name Nlist Vlist)
@@ -81,9 +73,6 @@
 )
 
 
-;; (defun updateNameAndValues(ExistingNames ExistingVals names vals)
-;;   (if (eq ()))
-;; )
 
 (defun addNames(ExistingNames names)
   (append ExistingNames names) 
@@ -108,5 +97,21 @@
   (if (eq (car H) '= )
   (cadr H)
     (getFunction (cdr H))
+  )
+)
+
+(defun hasFuncDef(P fname)
+  (cond
+    ((null P) nil)
+    ((eq (caar P) fname) t)
+    (t (hasFuncDef (cdr P) fname))
+  )
+)
+
+(defun getFuncDef(P fname)
+  (cond
+    ((null P) nil)
+    ((eq (caar P) fname) (car P))
+    (t (getFuncDef (cdr P) fname))
   )
 )
