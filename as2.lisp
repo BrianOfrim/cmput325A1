@@ -5,7 +5,7 @@
 
 (defun fl-interp-help (E P N V)
   (cond 
-  ((not (null (getVal E N V))) (getVal E N V))
+  ((not (null (hasName E N))) (getVal E N V))
 	((atom E) E)   ;this includes the case where expr is nil  
         (t
            (let ( (f (car E))  (arg (cdr E)) )
@@ -36,7 +36,7 @@
                   (let ( (fargs (getArgs (cdar P) nil)) (fdef (getFunction (cdar P))))
                     ;; (if (eq f userf)
                         ; make namelist and call fl-interp with it
-                        (fl-interp-help fdef P (addNames N fargs) (addValues V arg))
+                        (fl-interp-help fdef P (addNames nil fargs) (addValues nil arg P N V))
                       ;; )
                     )
                 )
@@ -70,13 +70,31 @@
   )
 )
 
+; check if a name is in the name list
+(defun hasName (name nameList)
+  (cond
+  ((null name) nil)
+  ((null nameList) nil)
+  ((eq name (car nameList)) (car nameList))
+  (t (hasName name (cdr nameList) ))
+  )
+)
+
+
+;; (defun updateNameAndValues(ExistingNames ExistingVals names vals)
+;;   (if (eq ()))
+;; )
 
 (defun addNames(ExistingNames names)
   (append ExistingNames names) 
 )
 
-(defun addValues(ExistingVals vals)
-  (append ExistingVals vals)
+;evaluate values then add to values list
+(defun addValues(ExistingVals vals P N V)
+  (if (null vals)
+    ExistingVals
+    (addValues (append ExistingVals (list (fl-interp-help (car vals) P N V))) (cdr vals) P N V)
+   ) 
 )
 
 (defun getArgs(H argL)
