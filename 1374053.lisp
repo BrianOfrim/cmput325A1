@@ -30,8 +30,6 @@
 ;;   (fl-interp '(divide 24 4) '((divide x y = (div x y 0)) (div x y z = (if (> (* y z) x) (- z 1) (div x y (+ z 1))))) nil nil) ; > '6
 
 
-test cases:
-
 (defun fl-interp-help (E P N V)
   (cond 
   ;check if the name is in the name list
